@@ -83,7 +83,9 @@ public class FavoriteService {
     private void sendKafkaEvent(String eventId, Favorite favorite) {
         FavoritePayloadDto payload = new FavoritePayloadDto(
                 favorite.getNewsCategory(),
-                favorite.getCreatedTime().toString()
+                favorite.getCreatedTime(),
+                favorite.getUserId().toString(),
+                favorite.getId().toString()
         );
 
         FavoriteEventDto event = new FavoriteEventDto(
