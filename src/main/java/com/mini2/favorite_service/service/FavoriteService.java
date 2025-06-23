@@ -11,6 +11,8 @@ import com.mini2.favorite_service.dto.request.FavoriteRequestDto;
 import com.mini2.favorite_service.dto.response.FavoriteResponseDto;
 import com.mini2.favorite_service.repository.FavoriteRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,11 +49,13 @@ public class FavoriteService {
 
 
     @Transactional(readOnly = true)
-    public List<FavoriteResponseDto> getMyFavorites(Long userId){
-        return favoriteRepository.findByUserId(userId).stream()
+    public List<FavoriteResponseDto> getMyFavorites(Long userId, int offset, int limit){
+        Pageable pageable = PageRequest.of(offset / limit, limit);
+        return favoriteRepository.findByUserId(userId, pageable).stream()
                 .map(FavoriteResponseDto::from)
                 .collect(Collectors.toList());
     }
+
 
     @Transactional
     public void cancelLike(Long favoriteId, Long userId){

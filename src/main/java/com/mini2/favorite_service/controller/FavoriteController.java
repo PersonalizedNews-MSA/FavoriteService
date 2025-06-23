@@ -32,10 +32,13 @@ public class FavoriteController {
     }
 
     @GetMapping
-    public ResponseEntity<List<FavoriteResponseDto>> getMyFavorites() {
+    public ResponseEntity<List<FavoriteResponseDto>> getMyFavorites(
+            @RequestParam int offset,
+            @RequestParam int limit)
+    {
         Long userId = Long.valueOf(GatewayRequestHeaderUtils.getUserIdOrThrowException());
 
-        List<FavoriteResponseDto> myFavorites = favoriteService.getMyFavorites(userId);
+        List<FavoriteResponseDto> myFavorites = favoriteService.getMyFavorites(userId, offset, limit);
         return ResponseEntity.ok(myFavorites);
     }
 
