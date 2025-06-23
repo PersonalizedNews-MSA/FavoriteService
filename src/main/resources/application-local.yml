@@ -7,12 +7,13 @@ spring:
     username: user
     password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-test-query: SELECT 1
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create # 오직 테스트 환경에서만
+    generate-ddl: true # 오직 테스트 환경에서만 (spring.jpa.generate-ddl)
     show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-  kafka:
-    bootstrap-servers: localhost:9092
+    open-in-view: false
+    kafka:
+      bootstrap-servers: localhost:9092
