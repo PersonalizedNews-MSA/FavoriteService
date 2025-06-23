@@ -1,28 +1,30 @@
 package com.mini2.favorite_service.service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import com.mini2.favorite_service.common.exception.NotFound;
 import com.mini2.favorite_service.domain.Favorite;
 import com.mini2.favorite_service.dto.request.FavoriteRequestDto;
 import com.mini2.favorite_service.dto.response.FavoriteResponseDto;
+import com.mini2.favorite_service.kafka.KafkaMessageProducer;
+import com.mini2.favorite_service.kafka.dto.FavoriteEventDto;
+import com.mini2.favorite_service.kafka.dto.FavoritePayloadDto;
 import com.mini2.favorite_service.repository.FavoriteRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class FavoriteService {
     private final FavoriteRepository favoriteRepository;
+    private final KafkaMessageProducer kafkaProducer;
 
     @Transactional
     public Optional<FavoriteResponseDto> likeNews(Long userId, FavoriteRequestDto dto) {
@@ -44,21 +46,21 @@ public class FavoriteService {
                 .build();
 
         Favorite saved = favoriteRepository.save(favorite);
+        sendKafkaEvent("좋아요 등록", saved);
+
         return Optional.of(FavoriteResponseDto.from(saved));
     }
 
-
     @Transactional(readOnly = true)
-    public List<FavoriteResponseDto> getMyFavorites(Long userId, int offset, int limit){
+    public List<FavoriteResponseDto> getMyFavorites(Long userId, int offset, int limit) {
         Pageable pageable = PageRequest.of(offset / limit, limit);
         return favoriteRepository.findByUserId(userId, pageable).stream()
                 .map(FavoriteResponseDto::from)
                 .collect(Collectors.toList());
     }
 
-
     @Transactional
-    public void cancelLike(Long favoriteId, Long userId){
+    public void cancelLike(Long favoriteId, Long userId) {
         Optional<Favorite> favoriteOptional = favoriteRepository.findById(favoriteId);
 
         if (favoriteOptional.isEmpty()) {
@@ -74,5 +76,23 @@ public class FavoriteService {
 
         favoriteRepository.delete(favorite);
         log.info("좋아요 취소 완료. favoriteId: {}, userId: {}", favoriteId, userId);
+
+        sendKafkaEvent("좋아요 취소", favorite);
+    }
+
+    private void sendKafkaEvent(String eventId, Favorite favorite) {
+        FavoritePayloadDto payload = new FavoritePayloadDto(
+                favorite.getNewsCategory(),
+                favorite.getCreatedTime().toString()
+        );
+
+        FavoriteEventDto event = new FavoriteEventDto(
+                eventId,
+                LocalDateTime.now(),
+                "favorite-service",
+                payload
+        );
+
+        kafkaProducer.send("UserFavoriteInfo", event);
     }
 }
