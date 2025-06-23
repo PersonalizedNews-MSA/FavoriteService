@@ -11,11 +11,13 @@ import com.mini2.favorite_service.domain.Favorite;
 import com.mini2.favorite_service.dto.request.FavoriteRequestDto;
 import com.mini2.favorite_service.dto.response.FavoriteResponseDto;
 import com.mini2.favorite_service.repository.FavoriteRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FavoriteService {
@@ -26,7 +28,7 @@ public class FavoriteService {
         Optional<Favorite> existing = favoriteRepository.findByUserIdAndNewsLink(userId, dto.getNewsLink());
 
         if(existing.isPresent()){
-            favoriteRepository.delete(existing.get());
+            log.warn("좋아요 등록 중복");
             return Optional.empty();
         }
 
@@ -53,9 +55,14 @@ public class FavoriteService {
 
     @Transactional
     public void cancelLike(Long favoriteId, Long userId){
-        Favorite favorite = favoriteRepository.findById(favoriteId)
-                .orElseThrow(() -> new CustomException(ErrorCode.FAVORITE_NOT_FOUND));
+        Optional<Favorite> favoriteOptional = favoriteRepository.findById(favoriteId);
 
+        if (favoriteOptional.isEmpty()) {
+            log.warn("좋아요 취소 요청 무시");
+            return;
+        }
+
+        Favorite favorite = favoriteOptional.get();
         if (!favorite.getUserId().equals(userId)) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_USER);
         }
