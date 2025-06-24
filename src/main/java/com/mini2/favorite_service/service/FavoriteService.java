@@ -1,5 +1,6 @@
 package com.mini2.favorite_service.service;
 
+import com.mini2.favorite_service.common.exception.NotFound;
 import com.mini2.favorite_service.domain.Favorite;
 import com.mini2.favorite_service.dto.request.FavoriteRequestDto;
 import com.mini2.favorite_service.dto.response.FavoriteResponseDto;
@@ -31,7 +32,7 @@ public class FavoriteService {
         Optional<Favorite> existing = favoriteRepository.findByUserIdAndNewsLink(userId, dto.getNewsLink());
 
         if (existing.isPresent()) {
-            log.warn("이미 등록된 뉴스입니다. userId={}, newsLink={}", userId, dto.getNewsLink());
+            log.warn("이미 등록된 뉴스입니다.");
             return Optional.empty();
         }
 
@@ -64,19 +65,16 @@ public class FavoriteService {
         Optional<Favorite> favoriteOptional = favoriteRepository.findById(favoriteId);
 
         if (favoriteOptional.isEmpty()) {
-            log.warn("좋아요 취소 실패 - 이미 삭제된 favorite입니다. favoriteId: {}, userId: {}", favoriteId, userId);
+            log.warn("좋아요 취소 실패 - 이미 삭제된 favorite입니다.");
             return;
         }
 
         Favorite favorite = favoriteOptional.get();
         if (!favorite.getUserId().equals(userId)) {
-            log.warn("좋아요 취소 실패 - 사용자 불일치. 요청 userId: {}, 실제 userId: {}", userId, favorite.getUserId());
-            return;
+            throw new NotFound("올바른 사용자가 아닙니다");
         }
 
         favoriteRepository.delete(favorite);
-        log.info("좋아요 취소 완료. favoriteId: {}, userId: {}", favoriteId, userId);
-
         sendKafkaEvent("좋아요 취소", favorite);
     }
 
