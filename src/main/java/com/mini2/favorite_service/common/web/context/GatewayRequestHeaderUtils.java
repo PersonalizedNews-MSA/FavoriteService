@@ -11,7 +11,7 @@ public class GatewayRequestHeaderUtils {
     }
 
     public static String getUserId() {
-        String userId = getRequestHeaderParamAsString("user_id");
+        String userId = getRequestHeaderParamAsString("X-Auth-UserId");
         if (userId == null) {
             return null;
         }
