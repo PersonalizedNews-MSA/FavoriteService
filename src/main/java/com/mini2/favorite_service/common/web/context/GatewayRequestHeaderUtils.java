@@ -1,5 +1,6 @@
 package com.mini2.favorite_service.common.web.context;
 
+
 import com.mini2.favorite_service.common.exception.NotFound;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -11,7 +12,7 @@ public class GatewayRequestHeaderUtils {
     }
 
     public static String getUserId() {
-        String userId = getRequestHeaderParamAsString("X-Auth-UserId");
+        String userId = getRequestHeaderParamAsString("X-Auth-userId");
         if (userId == null) {
             return null;
         }

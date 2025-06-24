@@ -1,5 +1,6 @@
 package com.mini2.favorite_service.controller;
 
+
 import com.mini2.favorite_service.common.web.context.GatewayRequestHeaderUtils;
 import com.mini2.favorite_service.dto.request.FavoriteRequestDto;
 import com.mini2.favorite_service.dto.response.FavoriteResponseDto;
@@ -18,7 +19,7 @@ import java.util.Optional;
 public class FavoriteController {
     private final FavoriteService favoriteService;
 
-    @PostMapping
+    @PostMapping("/")
     public ResponseEntity<?> toggleFavorite(@RequestBody FavoriteRequestDto dto) {
         Long userId = Long.valueOf(GatewayRequestHeaderUtils.getUserIdOrThrowException());
 
@@ -31,7 +32,7 @@ public class FavoriteController {
         }
     }
 
-    @GetMapping
+    @GetMapping("/")
     public ResponseEntity<List<FavoriteResponseDto>> getMyFavorites(
             @RequestParam int offset,
             @RequestParam int limit)
