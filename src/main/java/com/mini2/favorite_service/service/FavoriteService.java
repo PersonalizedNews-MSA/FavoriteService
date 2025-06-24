@@ -47,6 +47,7 @@ public class FavoriteService {
                 .build();
 
         Favorite saved = favoriteRepository.save(favorite);
+        log.info("category: {}", dto.getNewsCategory());
         sendKafkaEvent("좋아요 등록", saved);
 
         return Optional.of(FavoriteResponseDto.from(saved));
