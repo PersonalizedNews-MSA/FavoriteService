@@ -5,6 +5,7 @@ import com.mini2.favorite_service.common.web.context.GatewayRequestHeaderUtils;
 import com.mini2.favorite_service.dto.request.FavoriteRequestDto;
 import com.mini2.favorite_service.dto.response.FavoriteResponseDto;
 import com.mini2.favorite_service.service.FavoriteService;
+import com.mini2.favorite_service.service.NewsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class FavoriteController {
     private final FavoriteService favoriteService;
+    private final NewsService newsService;
 
     @PostMapping("/")
     public ResponseEntity<?> toggleFavorite(@RequestBody FavoriteRequestDto dto) {
@@ -40,12 +42,17 @@ public class FavoriteController {
         return ResponseEntity.ok(myFavorites);
     }
 
-
     @DeleteMapping("/{favoriteId}")
     public ResponseEntity<Void> cancelFavorite(@PathVariable Long favoriteId) {
         Long userId = Long.valueOf(GatewayRequestHeaderUtils.getUserIdOrThrowException());
 
         favoriteService.cancelLike(favoriteId, userId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @GetMapping("/newslinks/{userId}")
+    public ResponseEntity<List<String>> favoriteNewsLinks(@PathVariable Long userId) {
+        List<String> favoriteNewsLinkList = newsService.getUserFavoriteLink(userId);
+        return ResponseEntity.ok(favoriteNewsLinkList);
     }
 }
