@@ -83,8 +83,8 @@ public class FavoriteService {
         FavoritePayloadDto payload = new FavoritePayloadDto(
                 favorite.getNewsCategory(),
                 favorite.getCreatedTime(),
-                favorite.getUserId().toString(),
-                favorite.getId().toString()
+                favorite.getId().toString(),
+                favorite.getUserId().toString()
         );
 
         FavoriteEventDto event = new FavoriteEventDto(
