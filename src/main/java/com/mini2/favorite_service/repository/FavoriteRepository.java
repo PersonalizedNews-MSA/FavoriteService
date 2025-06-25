@@ -23,5 +23,5 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long>{
     void deleteByUserId(Long userId);
 
     @Query("SELECT f.newsLink FROM Favorite f WHERE f.userId = :userId")
-    List<String> findNewsLinksByUserId(@Param("userId") Long userId);
+    List<String> findNewsLinksByUserId(Long userId);
 }

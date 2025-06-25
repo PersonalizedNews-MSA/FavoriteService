@@ -7,6 +7,7 @@ import com.mini2.favorite_service.dto.response.FavoriteResponseDto;
 import com.mini2.favorite_service.service.FavoriteService;
 import com.mini2.favorite_service.service.NewsService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/favorite/v1")
 @RequiredArgsConstructor
@@ -50,8 +52,9 @@ public class FavoriteController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @GetMapping("/newslinks/{userId}")
-    public ResponseEntity<List<String>> favoriteNewsLinks(@PathVariable Long userId) {
+    @GetMapping("/newslinks")
+    public ResponseEntity<List<String>> favoriteNewsLinks() {
+        Long userId = Long.valueOf(GatewayRequestHeaderUtils.getUserIdOrThrowException());
         List<String> favoriteNewsLinkList = newsService.getUserFavoriteLink(userId);
         return ResponseEntity.ok(favoriteNewsLinkList);
     }
