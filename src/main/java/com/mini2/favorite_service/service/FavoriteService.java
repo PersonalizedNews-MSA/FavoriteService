@@ -54,12 +54,12 @@ public class FavoriteService {
     }
 
     @Transactional(readOnly = true)
-    public List<FavoriteResponseDto> getMyFavorites(Long userId, int offset, int limit) {
-        Pageable pageable = PageRequest.of(offset / limit, limit);
-        return favoriteRepository.findByUserId(userId, pageable).stream()
+    public List<FavoriteResponseDto> getMyFavorites(Long userId) {
+        return favoriteRepository.findByUserId(userId).stream()
                 .map(FavoriteResponseDto::from)
                 .collect(Collectors.toList());
     }
+
 
     @Transactional
     public void cancelLike(Long favoriteId, Long userId) {

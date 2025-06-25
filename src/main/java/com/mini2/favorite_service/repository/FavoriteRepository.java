@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 public interface FavoriteRepository extends JpaRepository<Favorite, Long>{
-    Page<Favorite> findByUserId(Long userId, Pageable pageable);
+    List<Favorite> findByUserId(Long userId);;
 
     Optional<Favorite> findByUserIdAndNewsLink(Long userId, String newsLink);
 
